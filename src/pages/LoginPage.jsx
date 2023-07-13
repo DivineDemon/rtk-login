@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../api/auth";
 
 const LoginPage = () => {
@@ -57,7 +57,7 @@ const LoginPage = () => {
             required
           />
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center justify-between space-y-3">
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -65,6 +65,12 @@ const LoginPage = () => {
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
+          <Link
+            to="/register"
+            className="text-gray-500 text-sm hover:underline"
+          >
+            Don't have an account? Sign up!
+          </Link>
         </div>
       </form>
     </div>
