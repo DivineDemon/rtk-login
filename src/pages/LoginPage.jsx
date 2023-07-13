@@ -1,25 +1,33 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+
 import { useLoginMutation } from "../api/auth";
+import { setUser, setToken } from "../store/user/userSlice";
 
 const LoginPage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [login, { isLoading, isError, error }] = useLoginMutation();
+  const loginMutation = useLoginMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const result = await login({ email, password });
-      const { token } = result.data;
+      const result = await loginMutation.mutateAsync({ email, password });
+      const { user, token } = result.data;
+      dispatch(setUser(user));
+      dispatch(setToken(token));
       localStorage.setItem("token", token);
       navigate("/home");
     } catch (error) {
       console.error(error);
     }
   };
+
+  const { isLoading, isError, error } = loginMutation;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -57,7 +65,7 @@ const LoginPage = () => {
             required
           />
         </div>
-        <div className="flex flex-col items-center justify-between space-y-3">
+        <div className="flex flex-col items-center justify-center space-y-3">
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

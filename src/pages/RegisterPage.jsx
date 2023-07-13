@@ -1,23 +1,33 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+
 import { useRegisterMutation } from "../api/auth";
+import { setUser, setToken } from "../store/user/userSlice";
 
 const RegisterPage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [register, { isLoading, isError, error }] = useRegisterMutation();
+  const registerMutation = useRegisterMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await register({ email, password });
-      navigate("/login");
+      const result = await registerMutation.mutateAsync({ email, password });
+      const { user, token } = result.data;
+      dispatch(setUser(user));
+      dispatch(setToken(token));
+      localStorage.setItem("token", token);
+      navigate("/home");
     } catch (error) {
       console.error(error);
     }
   };
+
+  const { isLoading, isError, error } = registerMutation;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -55,7 +65,7 @@ const RegisterPage = () => {
             required
           />
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center justify-center space-y-3">
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -63,6 +73,9 @@ const RegisterPage = () => {
           >
             {isLoading ? "Registering..." : "Register"}
           </button>
+          <Link to="/login" className="text-gray-500 text-sm hover:underline">
+            Already have an account? Log in!
+          </Link>
         </div>
       </form>
     </div>
