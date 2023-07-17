@@ -34,9 +34,7 @@ export const useLoginMutation = () => {
 };
 
 export const useRegisterMutation = () => {
-  const dispatch = useDispatch();
-
-  const registerMutation = async ({ email, password }) => {
+  const registerMutation = async (userData) => {
     const response = await fetch(
       `${process.env.REACT_APP_BASE_URL}/auth/register`,
       {
@@ -44,17 +42,20 @@ export const useRegisterMutation = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(userData),
       }
     );
 
     const data = await response.json();
+    console.log(data);
 
     if (response.ok) {
-      const { user, token } = data;
-      dispatch(setUser(user));
-      dispatch(setToken(token));
-      return { data };
+      const { status, message } = data;
+      if (status) {
+        return { success: true, message };
+      } else {
+        throw new Error(message || "Registration failed");
+      }
     } else {
       throw new Error(data.message || "Registration failed");
     }

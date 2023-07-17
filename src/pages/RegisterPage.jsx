@@ -1,33 +1,46 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useRegisterMutation } from "../api/auth";
-import { setUser, setToken } from "../store/user/userSlice";
 
 const RegisterPage = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    age: 0, // Set to the appropriate default value
+    location: "",
+    image: "",
+  });
   const registerMutation = useRegisterMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const result = await registerMutation.mutateAsync({ email, password });
-      const { user, token } = result.data;
-      dispatch(setUser(user));
-      dispatch(setToken(token));
-      localStorage.setItem("token", token);
-      navigate("/home");
+      const result = await registerMutation.mutateAsync(formData);
+      setSuccess(result.success);
+
+      if (success) {
+        navigate("/");
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
   const { isLoading, isError, error } = registerMutation;
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: name === "age" ? parseInt(value) : value,
+    }));
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -43,25 +56,94 @@ const RegisterPage = () => {
         )}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
+            Name
+          </label>
+          <input
+            type="text"
+            name="name"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Email
           </label>
           <input
             type="email"
+            name="email"
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleInputChange}
             required
           />
         </div>
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
             Password
           </label>
           <input
             type="password"
+            name="password"
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Phone
+          </label>
+          <input
+            type="text"
+            name="phone"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={formData.phone}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Age
+          </label>
+          <input
+            type="number"
+            name="age"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={formData.age}
+            onChange={handleInputChange}
+            required
+            min={0} // Set the minimum age value if needed
+            max={120} // Set the maximum age value if needed
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Location
+          </label>
+          <input
+            type="text"
+            name="location"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={formData.location}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Image URL
+          </label>
+          <input
+            type="text"
+            name="image"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={formData.image}
+            onChange={handleInputChange}
             required
           />
         </div>
